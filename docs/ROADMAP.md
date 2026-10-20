@@ -8,7 +8,7 @@ applicable) and documentation all exist — compilation alone is not done.
 
 | Phase | Scope | Status |
 | --- | --- | --- |
-| **A** | Clean baseline, NeoForge build & tests (Part 1) | 🟡 Implemented; verification runs in CI (see TESTING.md) |
+| **A** | Clean baseline, NeoForge build & tests (Part 1) | 🟡 Build+tests verified green in CI; dev launch pending desktop confirmation (see TESTING.md) |
 | **B** | Sim interfaces, signal engine, scheduler, diagnostics (Part 2) | 🟡 First slice implemented; circuit graph evaluator remains |
 | **C** | Gates, sequential logic, buses, miniature surface placement (Part 3) | 🟡 Logic gates only; everything else not started |
 | **D** | Memory, persistent storage, RAM modules, PCBs (Part 4) | ⬜ Not started |

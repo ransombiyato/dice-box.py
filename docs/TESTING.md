@@ -33,7 +33,8 @@ and uploads test reports/jars as artifacts on failure and success.
 | --- | --- | --- | --- |
 | 2026-10-20 | Agent sandbox (Python 3.11) | `python3 tools/test_ascii_screen.py` | ✅ 9 tests passed; demo PGM rendered + probed correctly |
 | 2026-10-20 | Agent sandbox | Java compile/test, Gradle build, dev launch | ⚠️ **Not runnable here** — see limitation below; verified in CI instead |
-| _(pending)_ | GitHub Actions (JDK 21 Temurin) | `./gradlew build` | Link the run here / in the PR when green |
+| 2026-10-20 | GitHub Actions (JDK 21 Temurin), PR #8 run [39455203420](https://github.com/ransombiyato/dice-box.py/actions/runs/39455203420) | `./gradlew build` | ❌ Failed before tests: JUnit dependencies were missing from `build.gradle`, so `compileTestJava` failed |
+| 2026-10-20 | GitHub Actions (JDK 21 Temurin), PR #8 run [39455939635](https://github.com/ransombiyato/dice-box.py/actions/runs/39455939635) | `./gradlew build` | ✅ **Passed in 3m28s** after the fix (`f691159`): main+test compilation, all 35 JUnit tests (the `build` task fails if any test fails), mod jar artifact uploaded. Dev launch (`runClient`) still pending a desktop with a display |
 
 **Sandbox limitation (recorded honestly, per spec):** the coding-agent
 sandbox that produced Phase A has outbound network access only to
