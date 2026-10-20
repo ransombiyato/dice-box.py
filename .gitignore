@@ -1,54 +1,29 @@
-# Byte-compiled / optimized / DLL files
+# Build output
+build/
+out/
+run/
+.remapped/
+*.class
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.ipr
+*.iws
+
+# Python tooling
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Distribution / packaging
-build/
-dist/
-sdist/
-wheels/
-*.egg-info/
-*.egg
-.eggs/
-pip-wheel-metadata/
-
-# Virtual environments
+.pytest_cache/
 .venv/
 venv/
-env/
-ENV/
 
-# Testing / coverage
-.pytest_cache/
-.coverage
-.coverage.*
-coverage.xml
-htmlcov/
-.tox/
-.nox/
-
-# Linting / type checking
-.ruff_cache/
-.mypy_cache/
-.pyre/
-.pytype/
-
-# Editors & OS
-.vscode/
-.idea/
-*.swp
-*.swo
+# OS
 .DS_Store
 Thumbs.db
-
-# Environment & secrets
-.env
-.env.*
-!.env.example
-*.pem
-*.key
-
-# Logs
-*.log
-npm-debug.log*
