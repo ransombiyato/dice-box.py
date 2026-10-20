@@ -49,7 +49,7 @@ All three run in CI on every push and pull request (see
 
 ```
 .
-├── .github/            # CI workflow, issue & PR templates, dependabot
+├── .github/            # CI workflow, issue & PR templates
 ├── src/dicebox/        # the package (src layout, installable)
 │   ├── __init__.py
 │   ├── __main__.py

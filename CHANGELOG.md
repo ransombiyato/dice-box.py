@@ -20,7 +20,7 @@ Nothing yet.
 - Added tooling: Ruff (lint + format), pytest, and a GitHub Actions CI workflow
   running lint, format checks, and tests on Python 3.9–3.13.
 - Added `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `LICENSE`, `.gitignore`,
-  `.editorconfig`, issue/PR templates, and Dependabot configuration.
+  `.editorconfig`, and issue/PR templates.
 
 [Unreleased]: https://github.com/ransombiyato/dice-box.py/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/ransombiyato/dice-box.py/releases/tag/v0.1.0
