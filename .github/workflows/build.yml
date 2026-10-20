@@ -30,16 +30,49 @@ jobs:
         with:
           gradle-version: "8.12"
 
+      # Build failures are surfaced as check-run annotations so they can be
+      # read from the API without downloading runner logs.
       - name: Compile core engine
-        run: gradle --no-daemon compileJava
+        run: |
+          set +e
+          gradle --no-daemon compileJava 2>&1 | tee /tmp/compile.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E "error:|What went wrong|Caused by|Could not (resolve|find|create)|FAILURE|Unsupported|requires|No matching" /tmp/compile.log \
+              | head -40 \
+              | while IFS= read -r line; do echo "::error::${line}"; done
+            echo "::error::compileJava exited with ${status}"
+            exit "$status"
+          fi
 
       - name: Run unit tests
-        run: gradle --no-daemon test
+        run: |
+          set +e
+          gradle --no-daemon test 2>&1 | tee /tmp/test.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E "error:|FAILED|What went wrong|Caused by|FAILURE|tests? failed" /tmp/test.log \
+              | head -40 \
+              | while IFS= read -r line; do echo "::error::${line}"; done
+            echo "::error::test exited with ${status}"
+            exit "$status"
+          fi
 
       - name: Build mod jar
-        run: gradle --no-daemon build
+        run: |
+          set +e
+          gradle --no-daemon build -x test 2>&1 | tee /tmp/build.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E "error:|What went wrong|Caused by|FAILURE" /tmp/build.log \
+              | head -40 \
+              | while IFS= read -r line; do echo "::error::${line}"; done
+            echo "::error::build exited with ${status}"
+            exit "$status"
+          fi
 
       - name: Upload jar
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: minetech-jar
