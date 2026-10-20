@@ -28,7 +28,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: "8.12"
+          gradle-version: "8.14.3"
 
       # A build failure is collapsed into one annotation carrying the whole
       # "What went wrong" block, because runner logs redirect to a host that
