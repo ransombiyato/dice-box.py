@@ -7,24 +7,27 @@ body:
     attributes:
       value: Thanks for taking the time to report this!
   - type: input
-    id: python-version
+    id: versions
     attributes:
-      label: Python version
-      placeholder: "3.12.1"
+      label: Versions (Minecraft / NeoForge / mod / Java)
+      placeholder: "MC 1.21.1, NeoForge 21.1.176, dicebox 0.1.0, Java 21.0.4"
     validations:
       required: true
   - type: input
     id: os
     attributes:
       label: Operating system
-      placeholder: Ubuntu 24.04
+      placeholder: Ubuntu 24.04 / Windows 11 / macOS 15
     validations:
       required: true
   - type: textarea
-    id: what-happened
+    id: steps
     attributes:
-      label: What happened?
-      description: What did you run, and what did you see?
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
     validations:
       required: true
   - type: textarea
@@ -36,5 +39,8 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Error output
-      render: shell
+      label: Logs / crash report excerpts
+      description: Paste the relevant part of latest.log or a crash report. Remove anything private first.
+      render: text
+    validations:
+      required: false

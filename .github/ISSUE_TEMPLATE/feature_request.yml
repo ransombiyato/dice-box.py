@@ -5,7 +5,7 @@ labels: [enhancement]
 body:
   - type: markdown
     attributes:
-      value: This project is a fresh start — what should it become?
+      value: DiceBox Computers is built phase-by-phase from docs/MASTER_SPEC.md — check docs/ROADMAP.md for what's already planned before requesting.
   - type: textarea
     id: problem
     attributes:
