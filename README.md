@@ -10,7 +10,8 @@ face, many to a surface, wired by hand, and actually computing.
 
 - **Minecraft:** 1.21.11
 - **Loader:** Fabric (`fabric-loader 0.20.1`, `fabric-api 0.141.6+1.21.11`)
-- **Java:** 21
+- **Java:** 25 toolchain (mod bytecode targets Java 21 runtime compatibility target of the platform)
+- **Build:** Gradle 9.7 · Loom `net.fabricmc.fabric-loom-remap` 1.18-SNAPSHOT
 
 ---
 
@@ -44,6 +45,7 @@ it can be reasoned about and benchmarked in isolation:
 | `Net` | Union-find merged nodes, wired-OR semantics, contested-net detection |
 | `Part` | Flat state, per-pin nets, edge-sensitive state machines |
 | `PartType` | 20 parts with stable ids and 16×16 pin geometry |
+| `src/test/java` | 44 JUnit tests running the real engine on every CI build |
 | `tools/refmodel` | Executable Python mirror of the engine — 44 behavioural tests |
 
 ### Parts available
@@ -74,13 +76,14 @@ Big contraptions live or die on tick cost, so the engine is written for it:
 ```bash
 git clone https://github.com/ransombiyato/dice-box.py.git
 cd dice-box.py
+gradle wrapper           # once, to generate ./gradlew
 
 ./gradlew build          # jar lands in build/libs/
 ./gradlew runClient      # dev client
-./gradlew test           # JUnit tests
+./gradlew test           # 44 JUnit tests
 ```
 
-No wrapper is committed yet; use a local Gradle 8.12 or run `gradle wrapper`.
+Needs a JDK 25 toolchain and Gradle 9.7. A wrapper is not committed yet.
 
 ### Verify the engine without Minecraft
 
