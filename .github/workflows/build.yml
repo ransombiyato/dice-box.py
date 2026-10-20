@@ -23,12 +23,12 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: "8.12"
+          gradle-version: "9.7.0"
 
       # A build failure is collapsed into one annotation carrying the whole
       # "What went wrong" block, because runner logs redirect to a host that
