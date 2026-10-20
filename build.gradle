@@ -114,6 +114,14 @@ configurations {
 }
 
 dependencies {
+    // Unit tests for the pure-Java simulation core (src/test/java).
+    // The sim package must never depend on Minecraft/NeoForge classes, so
+    // these tests exercise real simulation behavior without a game runtime.
+    // Launcher version is explicit (aligned with JUnit 5.11.4 / platform
+    // 1.11.4): this project imports no BOM to manage it.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
