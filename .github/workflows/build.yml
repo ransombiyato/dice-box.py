@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.12"
+
+      - name: Compile core engine
+        run: gradle --no-daemon compileJava
+
+      - name: Run unit tests
+        run: gradle --no-daemon test
+
+      - name: Build mod jar
+        run: gradle --no-daemon build
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: minetech-jar
+          path: build/libs/*.jar
+          if-no-files-found: warn

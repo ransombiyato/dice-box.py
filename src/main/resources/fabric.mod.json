@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "minetech",
+  "version": "${version}",
+  "name": "Minetech",
+  "description": "Realistic micro-electronics for Minecraft: gates, adders, latches, RAM and CPUs you build by hand, one tiny part at a time.",
+  "authors": ["ransombiyato"],
+  "contact": {
+    "homepage": "https://github.com/ransombiyato/dice-box.py",
+    "issues": "https://github.com/ransombiyato/dice-box.py/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/minetech/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.minetech.Minetech"],
+    "client": ["dev.minetech.client.MinetechClient"]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "fabric-api": "*",
+    "minecraft": "~1.21.11",
+    "java": ">=21"
+  }
+}
