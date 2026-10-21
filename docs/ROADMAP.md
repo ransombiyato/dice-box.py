@@ -9,7 +9,7 @@ applicable) and documentation all exist — compilation alone is not done.
 | Phase | Scope | Status |
 | --- | --- | --- |
 | **A** | Clean baseline, NeoForge build & tests (Part 1) | 🟡 Build+tests verified green in CI; dev launch pending desktop confirmation (see TESTING.md) |
-| **B** | Sim interfaces, signal engine, scheduler, diagnostics (Part 2) | 🟡 Circuit graph + settling & event-driven evaluators + snapshots implemented (CI-verified on merge); caching/suspension polish remains |
+| **B** | Sim interfaces, signal engine, scheduler, diagnostics (Part 2) | 🟡 Circuit graph + settling & event-driven evaluators + snapshots implemented and CI-verified (PR #10, 62 tests); caching/suspension polish remains |
 | **C** | Gates, sequential logic, buses, miniature surface placement (Part 3) | 🟡 Logic gates evaluated inside circuits; sequential components + surface placement not started |
 | **D** | Memory, persistent storage, RAM modules, PCBs (Part 4) | ⬜ Not started |
 | **E** | Intel 8085 + reference tests + runnable programs (Part 4) | ⬜ Not started |
