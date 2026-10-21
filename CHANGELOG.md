@@ -8,6 +8,15 @@ All notable changes are documented here. Format follows
 
 ### Added
 
+- Phase B slice 2 (circuit graph & evaluators): `CombinationalComponent`
+  contract, `sim.circuit` package with `Circuit`, `TerminalRef`,
+  `CircuitProblem`, synchronous `CombinationalEvaluator` (bounded settling,
+  seeded feedback, oscillation reporting), and
+  `EventDrivenCircuitSimulator` (transport gate delays, mandatory time/event
+  budgets, quiescent snapshot save/restore). 27 new JUnit tests (62 total),
+  including half-adder, seeded NOR-latch and oscillating-ring coverage.
+- `EventScheduler(long initialTime)` constructor for snapshot restoration.
+
 - Fresh NeoForge project for Minecraft Java 1.21.1 (NeoForge 21.1.176,
   ModDevGradle 2.0.91, Java 21, Gradle wrapper 8.14.2) based on the official
   NeoForged MDK, mod id `dicebox` ("DiceBox Computers").

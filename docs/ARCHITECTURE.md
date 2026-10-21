@@ -34,7 +34,7 @@ Consequences that future code must keep:
 - Sim state must be serializable without Minecraft types (building block:
   `SignalValue.encode/decode`).
 
-## Implemented today (milestones A + first slice of B/C)
+## Implemented today (milestones A, B slices 1–2, early C)
 
 Package `io.github.ransombiyato.dicebox.sim`:
 
@@ -47,8 +47,18 @@ Package `io.github.ransombiyato.dicebox.sim`:
 | `NetResolver` | Net value from multiple drivers: agreement, known-beats-unknown, per-bit conflict flagging, floating (no driver) detection. |
 | `ClockWaveform` | Pure-function clock: period, duty, phase; `isHighAt`, `nextEdgeAfter`. |
 | `AccuracyMode` | EDUCATIONAL / FUNCTIONAL / TIMING_AWARE / CYCLE_ACCURATE intent + default gate delay. Selecting a mode claims nothing by itself. |
-| `SimComponent` | Minimal component contract: stable `id()`, typed `terminals()`. Evaluation semantics stay per-kind until the graph evaluator formalizes them. |
-| `LogicGate` | First real component (early milestone C): BUFFER/NOT/AND/OR/NAND/NOR/XOR/XNOR over any width/input count, pure `evaluate()`, exposed terminals. Delay application belongs to the future evaluator. |
+| `SimComponent` | Minimal component contract: stable `id()`, typed `terminals()`. |
+| `CombinationalComponent` | Pure-function evaluation contract (inputs-by-terminal → outputs-by-terminal); deterministic, side-effect free. Sequential components get a separate contract in milestone C. |
+| `LogicGate` | First real component (early milestone C): BUFFER/NOT/AND/OR/NAND/NOR/XOR/XNOR over any width/input count. Evaluates by input list or via the `CombinationalComponent` map contract. Delay application belongs to the circuit evaluators, not the gate. |
+
+Package `io.github.ransombiyato.dicebox.sim.circuit` (Phase B slice 2):
+
+| Class | Responsibility |
+| --- | --- |
+| `Circuit` | Mutable circuit structure: named nets (width-checked), combinational components, terminal→net connections, external-input declarations, topology changes (disconnect/remove), structural validation. Holds no signal state. |
+| `TerminalRef` / `CircuitProblem` | Stable logical address of a terminal (`comp.term`); structured diagnostics (unconnected terminal / undriven net / multiple drivers). |
+| `CombinationalEvaluator` | Stateless synchronous settling to a fixed point with a hard iteration bound; external drives + seed values; feedback either settles or is reported as unstable by net name. Returns `CircuitEvaluation` (values, settled flag, iterations, conflicted/floating/unstable nets, problems). |
+| `EventDrivenCircuitSimulator` | Stateful timed simulation: drivers per net resolved through `NetResolver`; net changes re-evaluate readers and apply outputs after a fixed transport delay via `EventScheduler`; both time and event budgets mandatory; quiescent snapshot/restore (versioned line format, consistency-checked). |
 
 Package `io.github.ransombiyato.dicebox`:
 
@@ -67,9 +77,9 @@ Developer tooling (not part of the mod jar):
 To avoid empty-class theater, these packages/files are **not** created
 up-front. Planned shape, all under `io.github.ransombiyato.dicebox`:
 
-- `sim/circuit` — circuit graph: nets, connections, topology validation,
-  combinational settling + event-driven evaluation, feedback policy,
-  incremental updates, snapshot save/restore. (Milestone B remainder)
+- `sim/circuit` extensions — graph caching/incremental re-evaluation and a
+  sequential-component evaluation model (clocked state transitions) layered
+  on the existing evaluators. (Milestones B polish / C)
 - `sim/component` — sequential logic (latches, flip-flops, counters, shift
   registers), arithmetic (adders, ALU), mux/decoders, tri-state bus drivers,
   subcircuit expansion + equivalence checks. (Milestone C)
@@ -115,6 +125,12 @@ up-front. Planned shape, all under `io.github.ransombiyato.dicebox`:
 7. **Imports are hostile input.** Future ROM/disk-image/schematic loaders
    validate sizes/formats, forbid path traversal, and never execute imported
    bytes as host code (spec Part 5/7).
+8. **Two evaluation semantics, both explicit.** Combinational settling uses
+   synchronous rounds (simultaneous updates), so results never depend on
+   component order; the event-driven simulator uses a fixed transport delay
+   (outputs computed from values at triggering time, applied at t+delay,
+   never cancelled in flight). Feedback in both: settles if it can, is
+   bounded and reported if it can't — never an infinite loop.
 
 ## Threading
 

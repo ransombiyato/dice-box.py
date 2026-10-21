@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.ransombiyato.dicebox.sim.LogicGate.Kind;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class LogicGateTest {
@@ -105,5 +106,17 @@ class LogicGateTest {
                 () ->
                         gate.evaluate(
                                 List.of(SignalValue.known(4, 0L), SignalValue.known(2, 0L))));
+    }
+
+    @Test
+    void evaluateByTerminalNameFollowsCombinationalContract() {
+        CombinationalComponent gate = new LogicGate("g", Kind.AND, 1, 2);
+        Map<String, SignalValue> out = gate.evaluate(
+                Map.of("in0", SignalValue.known(1, 1L), "in1", SignalValue.known(1, 1L)));
+        assertEquals(SignalValue.known(1, 1L), out.get("out"));
+        // A missing input entry is treated as fully unknown: AND(1, X) = X.
+        Map<String, SignalValue> outUnknown =
+                gate.evaluate(Map.of("in0", SignalValue.known(1, 1L)));
+        assertEquals(SignalValue.Bit.UNKNOWN, outUnknown.get("out").bit(0));
     }
 }
