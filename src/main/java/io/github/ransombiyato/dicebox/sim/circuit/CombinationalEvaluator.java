@@ -52,7 +52,9 @@ public final class CombinationalEvaluator {
      * Settles a circuit.
      *
      * @param externalInputs constant external drives by net name; applied as
-     *     an extra driver on that net for the whole evaluation
+     *     an extra driver on that net for the whole evaluation. A net driven
+     *     only externally starts at its external value before round 1, in
+     *     preference to any seed, since nothing else can influence it
      * @param initialValues seed values for nets before round 1 (others start
      *     fully unknown); used to model retained feedback state
      * @param maxIterations hard bound on synchronous rounds (&ge; 1)
@@ -76,6 +78,26 @@ public final class CombinationalEvaluator {
             values.put(net.getKey(), SignalValue.unknown(net.getValue()));
         }
         values.putAll(initialValues);
+        // A net driven *only* externally has that value at every instant,
+        // including before round 1. Starting such nets at their external
+        // value (instead of waiting a round for the first resolution)
+        // matters for feedback: without it, an unknown standing in for a
+        // constant input rides around a feedback loop in lockstep with the
+        // synchronous rounds and even a holding latch reports as unstable.
+        Set<String> componentDrivenNets = new LinkedHashSet<>();
+        for (CombinationalComponent component : circuit.components()) {
+            for (Terminal terminal : component.terminals()) {
+                if (terminal.canDrive()) {
+                    circuit.netOf(new TerminalRef(component.id(), terminal.name()))
+                            .ifPresent(componentDrivenNets::add);
+                }
+            }
+        }
+        for (Map.Entry<String, SignalValue> drive : externalInputs.entrySet()) {
+            if (!componentDrivenNets.contains(drive.getKey())) {
+                values.put(drive.getKey(), drive.getValue());
+            }
+        }
 
         List<CircuitProblem> problems = circuit.validate();
         Map<String, NetResolver.Resolution> resolutions = Map.of();
