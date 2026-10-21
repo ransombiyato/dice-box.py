@@ -48,6 +48,23 @@ public final class EventScheduler<T> {
     private long now = 0L;
     private long nextSequence = 0L;
 
+    /** Creates a scheduler starting at time {@code 0}. */
+    public EventScheduler() {
+        this(0L);
+    }
+
+    /**
+     * Creates a scheduler starting at {@code initialTime}. Exists so a
+     * simulator snapshot can be restored at the time it was taken; ordinary
+     * callers should prefer {@link #EventScheduler()}.
+     */
+    public EventScheduler(long initialTime) {
+        if (initialTime < 0L) {
+            throw new IllegalArgumentException("initialTime must be >= 0: " + initialTime);
+        }
+        this.now = initialTime;
+    }
+
     /** Current simulation time. Never moves backwards. */
     public long now() {
         return now;

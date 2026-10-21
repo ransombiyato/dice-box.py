@@ -12,6 +12,8 @@ concurrency:
 
 permissions:
   contents: read
+  # Only used to post build-failure excerpts as PR comments (see below).
+  pull-requests: write
 
 jobs:
   build:
@@ -33,21 +35,51 @@ jobs:
           set -o pipefail
           ./gradlew build --stacktrace 2>&1 | tee "$RUNNER_TEMP/gradle-build.log"
 
-      # Some contributors/agents can read check annotations via the GitHub API
-      # but cannot download raw run logs. On failure, re-publish the tail of
-      # the Gradle log as annotations so the failure is never a black box.
-      - name: Surface build failure (log tail as annotations)
+      # Some contributors/agents can use the GitHub API but cannot download
+      # raw run logs, and check annotations are capped per step (a log tail
+      # there truncates to useless stack frames). So on failure, publish a
+      # filtered log excerpt two ways: the job summary (web UI) and a PR
+      # comment (API-readable). Filtered for task/failure/compile/test
+      # lines with context, never the whole log.
+      - name: Surface build failure excerpt
         if: failure()
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           log="$RUNNER_TEMP/gradle-build.log"
+          excerpt="$RUNNER_TEMP/failure-excerpt.txt"
           if [ -f "$log" ]; then
-            tail -n 45 "$log" | while IFS= read -r line || [ -n "$line" ]; do
-              esc=${line//%/%25}
-              esc=${esc//$'\r'/%0D}
-              [ -z "$esc" ] && esc="(blank line)"
-              echo "::error title=gradle-build-log::${esc:0:600}"
-            done
+            grep -nE -B1 -A4 \
+              "FAILED|FAILURE:|What went wrong|Execution failed|error:|symbol:|location:|AssertionFailedError|expected:|> Task " \
+              "$log" | head -n 300 > "$excerpt" || true
+            if [ ! -s "$excerpt" ]; then
+              tail -n 100 "$log" > "$excerpt"
+            fi
+          else
+            echo "No Gradle log was captured." > "$excerpt"
+          fi
+          {
+            echo "## Gradle build failure excerpt"
+            echo ""
+            echo '```text'
+            cat "$excerpt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            {
+              echo "### CI build failure excerpt"
+              echo ""
+              echo "<details><summary>Filtered Gradle log (tasks, failures, compiler/test errors)</summary>"
+              echo ""
+              echo '```text'
+              cat "$excerpt"
+              echo '```'
+              echo ""
+              echo "</details>"
+            } > "$RUNNER_TEMP/failure-comment.md"
+            gh pr comment "${{ github.event.pull_request.number }}" \
+              --body-file "$RUNNER_TEMP/failure-comment.md"
           fi
 
       - name: Upload test reports

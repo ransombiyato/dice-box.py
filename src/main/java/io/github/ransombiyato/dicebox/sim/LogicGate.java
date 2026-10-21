@@ -2,6 +2,7 @@ package io.github.ransombiyato.dicebox.sim;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -11,11 +12,11 @@ import java.util.Objects;
  * <p>{@link #evaluate} is a pure function of its inputs, including the
  * three-valued unknown propagation defined by {@link SignalValue}. Applying
  * propagation <i>delay</i> (scheduling the output change through
- * {@link EventScheduler}) is the circuit evaluator's job and lands with the
- * graph evaluator; this class owns only the gate's logic function and its
- * terminals ({@code in0..inN-1}, {@code out}).
+ * {@link EventScheduler}) is the circuit evaluator's job (see the
+ * {@code sim.circuit} package); this class owns only the gate's logic
+ * function and its terminals ({@code in0..inN-1}, {@code out}).
  */
-public final class LogicGate implements SimComponent {
+public final class LogicGate implements CombinationalComponent {
     public enum Kind {
         BUFFER,
         NOT,
@@ -149,5 +150,22 @@ public final class LogicGate implements SimComponent {
             default:
                 throw new IllegalStateException("unhandled gate kind: " + kind);
         }
+    }
+
+    /**
+     * {@link CombinationalComponent} view of {@link #evaluate(List)}: reads
+     * {@code in0..inN-1} by terminal name and returns {@code out}. A missing
+     * input entry is treated as fully unknown, matching how evaluators feed
+     * unconnected terminals.
+     */
+    @Override
+    public Map<String, SignalValue> evaluate(Map<String, SignalValue> inputsByTerminal) {
+        Objects.requireNonNull(inputsByTerminal, "inputsByTerminal");
+        List<SignalValue> inputs = new ArrayList<>(inputCount);
+        for (int i = 0; i < inputCount; i++) {
+            SignalValue value = inputsByTerminal.get("in" + i);
+            inputs.add(value != null ? value : SignalValue.unknown(width));
+        }
+        return Map.of("out", evaluate(inputs));
     }
 }

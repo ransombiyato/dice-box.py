@@ -6,12 +6,14 @@ systems, and one day real compatible software. It is built one tested
 milestone at a time, survival-first, and this README is the running handoff
 document: it always describes what is *really* in the repo, not the dream.
 
-> **Status (2026-10-20): Milestone A + first slices of B/C.**
+> **Status (2026-10-21): Milestone A landed; Phase B circuit graph built.**
 > The repository was reset from its previous life (a Python project) into a
-> NeoForge MDK project. What exists today is the buildable foundation plus a
-> tested, pure-Java simulation core (signals, event scheduler, nets, gates).
-> **There is no in-game content yet** — no blocks, items, GUIs, or computers.
-> Anyone telling you otherwise is selling something.
+> NeoForge MDK project. What exists today is the buildable foundation, a
+> tested pure-Java simulation core, and now a circuit graph with two
+> evaluators: combinational settling (with feedback policies) and a timed,
+> event-driven simulator with snapshots. Still **zero in-game content** —
+> no blocks, items, GUIs, or computers. Anyone telling you otherwise is
+> selling something.
 
 The complete owner specification (Parts 1–10) is stored in
 [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md). Phase tracking lives in
@@ -31,9 +33,18 @@ The complete owner specification (Parts 1–10) is stored in
   event scheduler, typed terminals + connection diagnostics, net resolution
   with conflict/floating detection, a clock waveform model, accuracy modes,
   and full combinational logic gates (BUFFER/NOT/AND/OR/NAND/NOR/XOR/XNOR).
-- **Automated tests:** 35 JUnit 5 tests over the simulation core
-  (`src/test/java/...`), plus 9 Python tests for the dev tool below. CI runs
-  everything on each pull request.
+- **Circuit graph + evaluators** (`.../dicebox/sim/circuit`): named nets,
+  typed connections, topology changes, structural validation (unconnected
+  terminals, undriven/multiply-driven nets), a synchronous
+  combinational-settling evaluator with bounded iterations and
+  stable-vs-oscillating feedback reporting, and an event-driven simulator
+  with transport gate delays, strict time/event budgets, and quiescent
+  snapshot save/restore. Circuits accept combinational components only —
+  sequential logic arrives with its own contract in Phase C.
+- **Automated tests:** 62 JUnit 5 tests over the simulation core
+  (`src/test/java/...`, including half-adder, seeded NOR latch and
+  oscillating-ring cases), plus 9 Python tests for the dev tool below. CI
+  runs everything on each pull request.
 - **ASCII screen tool** (`tools/ascii_screen.py`): renders PNM
   framebuffers/screenshots as ASCII art and maps cells back to pixels, for
   developing display code headlessly. (It reads image files; it cannot drive
@@ -41,11 +52,14 @@ The complete owner specification (Parts 1–10) is stored in
 
 ## What does *not* exist yet
 
-Everything else in the spec: circuit graph evaluation, sequential logic,
-surface placement of miniature components, memory, CPUs (8085 → 6502 →
-2A03), storage/USB-style transfer, firmware/OS boot, physical PC parts,
-graphics devices, power/thermals, schematics, survival progression — and
-therefore, obviously, DOOM. See the roadmap for order and status.
+Everything else in the spec: sequential logic (latches-as-components,
+flip-flops, counters), surface placement of miniature components, memory,
+CPUs (8085 → 6502 → 2A03), storage/USB-style transfer, firmware/OS boot,
+physical PC parts, graphics devices, power/thermals, schematics, survival
+progression — and therefore, obviously, DOOM. See the roadmap for order and
+status. (A NOR SR latch can already be *wired from gates* in the circuit
+evaluator and holds seeded state; latch *components* with internal state do
+not exist yet — that distinction matters.)
 
 ## Requirements
 
@@ -82,6 +96,7 @@ real desktop JDK. This is recorded, not papered over, in
 ├── src/main/java/io/github/ransombiyato/dicebox/
 │   ├── DiceBoxMod.java        # @Mod entrypoint (no content registered yet)
 │   └── sim/                   # pure-Java simulation core (NEVER import Minecraft here)
+│       └── circuit/           # circuit graph, settling + event-driven evaluators, snapshots
 ├── src/main/templates/META-INF/neoforge.mods.toml       # expanded by generateModMetadata
 ├── src/main/resources/assets/dicebox/lang/en_us.json
 ├── src/test/java/.../sim/      # JUnit 5 sim-core tests
@@ -96,10 +111,13 @@ real desktop JDK. This is recorded, not papered over, in
   instruction (spec Part 1). Recoverable at commit
   `4d4f761e21a222e35f3717690d0429f4bafc7b35` (`main`, pre-reset). Working tree
   was clean; nothing uncommitted was lost. `.git` untouched.
-- **Next tasks:** (1) land the foundation PR with green CI; (2) confirm
-  `runClient` once on a desktop and record it in TESTING.md; (3) Roadmap
-  Phase B next slice — circuit graph, combinational settling with feedback
-  policy, event-driven evaluation, snapshots. Then Phase C sequential logic.
+- **Next tasks:** (1) land the Phase B circuit-graph PR with green CI;
+  (2) still confirm `runClient` once on a desktop and record it in
+  TESTING.md (open since Phase A); (3) Phase C — sequential component
+  contract on the event-driven simulator (SR/D latches, flip-flops,
+  counters, shift registers) with state-transition tests, then arithmetic
+  components. Remaining Phase B polish (graph caching, idle suspension,
+  cost reporting to a future per-tick budgeter) is listed in the roadmap.
 
 ## Contributing
 
